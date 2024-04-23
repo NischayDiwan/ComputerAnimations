@@ -6,12 +6,12 @@ namespace COL781 {
         this->velocity = velocity;
         this->mass = mass;
         this->isFixed = isFixed;
-        force = glm::vec3(0.0f);
+        this->force = glm::vec3(0.0f);
     }
 
     void Particle::update(float dt) {
         if (!isFixed) {
-            glm::vec3 acceleration = force/mass;
+            glm::vec3 acceleration = force/mass + glm::vec3(0.0f, -9.8f, 0.0f);
             velocity += dt*acceleration;
             position += dt*velocity;
         }
@@ -48,14 +48,17 @@ namespace COL781 {
         }
 
         // fixing edge particles
-        for (int i = 0; i < nw; i++) {
-            particles[i][0].isFixed = true;
-        }
+        // for (int i = 0; i < nw; i++) {
+        //     particles[i][0].isFixed = true;
+        //     // particles[i][nh-1].isFixed = true;
+        // }
+        particles[0][0].isFixed = true;
+        particles[nw-1][0].isFixed = true;
 
-        float ke = 100.0f;
-        float kd = 10.0f;
-        float kf = 50.0f;
-        float kg = 20.0f;
+        float ke = 400.0f * sqrt(nw*nh);
+        float kd = 10.0f * sqrt(nw*nh);
+        float kf = 200.0f * sqrt(nw*nh);
+        float kg = 100.0f * sqrt(nw*nh);
 
 
         for (int i = 0; i < nw; i++) {
@@ -105,7 +108,7 @@ namespace COL781 {
     void Grid::update(float dt) {
         for (int i = 0; i < nw; i++) {
             for (int j = 0; j < nh; j++) {
-                particles[i][j].force = this->gravity;
+                particles[i][j].force = glm::vec3(0.0f);
             }
         }
         for (Spring &spring : edgesprings) {

@@ -41,7 +41,7 @@ void initializeScene() {
 }
 
 void updateScene(float t, Grid &grid) {
-	grid.update(0.01);
+	grid.update(0.001);
 	grid.render(vertices_vec, triangles_vec);
 	const int nv = vertices_vec.size();
 	const int nt = triangles_vec.size();
@@ -69,13 +69,13 @@ int main() {
 		return EXIT_FAILURE;
 	}
 	camCtl.initialize(width, height);
-	camCtl.camera.setCameraView(vec3(0.0, 1.0, 2.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+	camCtl.camera.setCameraView(vec3(0.0, 0.0, 1.0), vec3(0.0, -0.5, 0.0), vec3(0.0, 1.0, 0.0));
 	program = r.createShaderProgram(
 		r.vsBlinnPhong(),
 		r.fsBlinnPhong()
 	);
 
-	Grid grid(2.0, 1.0, 10, 10);
+	Grid grid(1.0, 1.0, 15, 15);
 	grid.render(vertices_vec, triangles_vec);
 	initializeScene();
 

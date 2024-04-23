@@ -40,7 +40,6 @@ namespace COL781 {
         std::vector<Spring> ghostsprings;
         Grid(float width, float height, int nw, int nh);
         void update(float dt);
-        glm::vec3 gravity = glm::vec3(0.0f, -1.0f, 0.0f);
         void render(std::vector<glm::vec3> &vertices, std::vector<glm::ivec3> &triangles);
     };
 }
