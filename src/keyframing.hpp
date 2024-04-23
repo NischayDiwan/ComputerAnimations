@@ -33,33 +33,36 @@ class Mesh {
 private:
     int nv, nt;
     glm::vec3 *vertices;
+    glm::vec3 *normals;
     glm::ivec3 *triangles;
 
 public:
-    Mesh(int, int, glm::vec3*, glm::ivec3*);
+    Mesh(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
+    int get_num_vertices() const;
+    int get_num_triangles() const;
     glm::vec3* get_vertices() const;
+    glm::vec3* get_normals() const;
     glm::ivec3* get_triangles() const;
-    void transform(glm::mat4);
-    pair<glm::vec3*, glm::ivec3*> transform(Quaternion);
 };
 
 class Joint {
 private:
     Joint *parent;
-    vector<Joint*> children;
     glm::vec3 axis;
-    glm::mat4 mat_transform;
-    Quaternion quat_transform;
+    glm::mat4 position;
+    Quaternion rotation;
     Mesh *mesh;
 
 public:
     Joint(Joint*, glm::vec3, glm::mat4);
-    void add_children(Joint*);
+    Joint* get_parent() const;
     glm::vec3 get_axis() const;
-    void create_mesh(int, int, glm::vec3*, glm::ivec3*);
-//    glm::mat4 get_transform() const;
-    void init_transform(glm::mat4);
-    pair<glm::vec3*, glm::ivec3*> get_rotated_mesh(Quaternion);
+    void create_mesh(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
+    glm::mat4 get_translation_mat() const;
+    Quaternion get_rotation_quat() const;
+    int get_num_vertices() const;
+    int get_num_triangles() const;
+    void get_transformed_mesh(Quaternion, int&, int&, glm::vec3**, glm::vec3**, glm::ivec3**);
 };
 
 class KeyFrame {
@@ -83,7 +86,7 @@ private:
 public:
     explicit Animation(vector<Joint>);
     void add_keyframe(const KeyFrame&);
-    vector<pair<glm::vec3*, glm::ivec3*>> get_frame(float);
+    void get_frame(float, vector<glm::vec3*>&, vector<glm::vec3*>&, vector<glm::ivec3*>&);
 };
 
 #endif //KEYFRAMING_HPP

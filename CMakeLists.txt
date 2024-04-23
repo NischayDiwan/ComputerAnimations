@@ -18,3 +18,6 @@ target_link_libraries(animation col781)
 
 add_executable(clothsim src/clothsim.cpp)
 target_link_libraries(clothsim col781)
+
+add_executable(skeletal_anim src/skeletal_anim.cpp)
+target_link_libraries(skeletal_anim col781)

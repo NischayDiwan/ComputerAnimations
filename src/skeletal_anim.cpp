@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 using namespace COL781;
 namespace GL = COL781::OpenGL;
 using namespace glm;
@@ -23,7 +25,6 @@ CameraControl camCtl;
 
 Animation initializeScene() {
     Joint root(nullptr, {1.0f, 0.0f, 0.0f}, mat4(1.0f));
-    root.init_transform(mat4(1.0f));
 
     vertices[0] = vec3(0, -1, 0);
     vertices[1] = vec3(1, -1, 0);
@@ -31,7 +32,7 @@ Animation initializeScene() {
     vertices[3] = vec3(0, 0, 0);
     triangles[0] = ivec3(0, 1, 2);
     triangles[1] = ivec3(0, 2, 3);
-    root.create_mesh(4, 2, vertices, triangles);
+    root.create_mesh(4, 2, vertices, normals, triangles);
 
     vector<Joint> joints{root};
     Animation anim(joints);
@@ -88,12 +89,15 @@ int main() {
     );
 
     auto anim = initializeScene();
+    vector<glm::vec3*> vertices_vec, normals_vec;
+    vector<glm::ivec3*> triangles_vec;
 
     while (!r.shouldQuit() && SDL_GetTicks64() < 3000) {
         object = r.createObject();
-        auto frame_data = anim.get_frame(static_cast<float>(SDL_GetTicks64()));
-        r.createVertexAttribs(object, 0, 4, frame_data[0].first);
-        r.createTriangleIndices(object, 2, frame_data[0].second);
+        anim.get_frame(static_cast<float>(SDL_GetTicks64()), vertices_vec, normals_vec, triangles_vec);
+
+        r.createVertexAttribs(object, 0, 4, vertices_vec[0]);
+        r.createTriangleIndices(object, 2, triangles_vec[0]);
 //        r.createVertexAttribs(object, 0, 4, vertices);
 //        r.createTriangleIndices(object, 2, triangles);
 
@@ -129,5 +133,9 @@ int main() {
         r.drawObject(object);
 
         r.show();
+
+        vertices_vec.clear();
+        normals_vec.clear();
+        triangles_vec.clear();
     }
 }
