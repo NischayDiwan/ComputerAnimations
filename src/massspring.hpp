@@ -7,52 +7,42 @@
 
 namespace COL781 {
     class Particle {
-    private:
+    public:
         glm::vec3 position;
         glm::vec3 velocity;
         glm::vec3 force;
         float mass;
         bool isFixed;
-    public:
         Particle(glm::vec3 position, glm::vec3 velocity, float mass, bool isFixed);
+        void update(float dt);
     };
 
     class Spring {
-    private:
+    public:
         Particle *p1;
         Particle *p2;
         float restLength;
         float stiffness;
         float damping;
-    public:
         Spring(Particle *p1, Particle *p2, float restLength, float stiffness, float damping);
+        void update(float dt);
     };
 
     class Grid {
-    private:
+    public:
         float width;
         float height;
         int nw;
         int nh;
-    public:
         std::vector<std::vector<Particle>> particles;
-        Grid(int n);
-        // void update(float dt);
+        std::vector<Spring> edgesprings;
+        std::vector<Spring> facesprings;
+        std::vector<Spring> ghostsprings;
+        Grid(float width, float height, int nw, int nh);
+        void update(float dt);
+        glm::vec3 gravity = glm::vec3(0.0f, -1.0f, 0.0f);
+        void render(std::vector<glm::vec3> &vertices, std::vector<glm::ivec3> &triangles);
     };
-
-    // class MassSpring {
-    // public:
-    //     glm::vec3 position;
-    //     glm::vec3 velocity;
-    //     glm::vec3 force;
-    //     float mass;
-    //     float damping;
-    //     float restLength;
-    //     float stiffness;
-    //     MassSpring();
-    //     MassSpring(glm::vec3 position, glm::vec3 velocity, float mass, float damping, float restLength, float stiffness);
-    //     void update(float dt);
-    // };
 }
 
 #endif

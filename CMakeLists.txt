@@ -9,7 +9,7 @@ find_package(glm REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
-add_library(col781 src/hw.cpp src/camera.cpp deps/src/gl.c)
+add_library(col781 src/hw.cpp src/camera.cpp deps/src/gl.c src/massspring.cpp src/keyframing.cpp)
 target_include_directories(col781 PUBLIC deps/include)
 target_link_libraries(col781 glm OpenGL::GL SDL2::SDL2)
 

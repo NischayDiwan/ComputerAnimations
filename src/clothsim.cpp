@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "massspring.hpp"
 
 #include <iostream>
 
@@ -9,11 +10,8 @@ using namespace glm;
 GL::Rasterizer r;
 GL::ShaderProgram program;
 
-const int nv = 4;
-const int nt = 2;
-vec3 vertices[nv];
-vec3 normals[nv];
-ivec3 triangles[nt];
+std::vector<glm::vec3> vertices_vec;
+std::vector<glm::ivec3> triangles_vec;
 
 GL::Object object;
 GL::AttribBuf vertexBuf, normalBuf;
@@ -21,33 +19,47 @@ GL::AttribBuf vertexBuf, normalBuf;
 CameraControl camCtl;
 
 void initializeScene() {
+	const int nv = vertices_vec.size();
+	const int nt = triangles_vec.size();
+	vec3 vertices[nv];
+	vec3 normals[nv];
+	ivec3 triangles[nt];
+
 	object = r.createObject();
-	vertices[0] = vec3(0, 0, 1);
-	vertices[1] = vec3(1, 0, 1);
-	vertices[2] = vec3(1, 0, 0);
-	vertices[3] = vec3(0, 0, 0);
+	for (int i = 0; i < nv; i++) {
+		vertices[i] = vertices_vec[i];
+	}	
 	vertexBuf = r.createVertexAttribs(object, 0, nv, vertices);
-	normals[0] = vec3(0, 0, 1);
-	normals[1] = vec3(0, 0, 1);
-	normals[2] = vec3(0, 0, 1);
-	normals[3] = vec3(0, 0, 1);
+	for (int i = 0; i < nv; i++) {
+		normals[i] = vec3(0.0, 0.0, 1.0);
+	}
 	normalBuf = r.createVertexAttribs(object, 1, nv, normals);
-	triangles[0] = ivec3(0, 1, 2);
-	triangles[1] = ivec3(0, 2, 3);
+	for (int i = 0; i < nt; i++) {
+		triangles[i] = triangles_vec[i];
+	}
 	r.createTriangleIndices(object, nt, triangles);
 }
 
-void updateScene(float t) {
-	float freq = 2, amp = 1;
-	float phase0 = 0, phase1 = 0.5;
-	float theta0 = amp*cos(freq*t + phase0), theta1 = amp*cos(freq*t + phase1);
-	vertices[0] = vec3(0, -cos(theta0), sin(theta0));
-	vertices[1] = vec3(1, -cos(theta1), sin(theta1));
+void updateScene(float t, Grid &grid) {
+	grid.update(0.01);
+	grid.render(vertices_vec, triangles_vec);
+	const int nv = vertices_vec.size();
+	const int nt = triangles_vec.size();
+	vec3 vertices[nv];
+	vec3 normals[nv];
+	for (int i = 0; i < nv; i++) {
+		vertices[i] = vertices_vec[i];
+	}
 	r.updateVertexAttribs(vertexBuf, nv, vertices);
-	normals[0] = glm::normalize(glm::cross(vertices[1]-vertices[0], vertices[3]-vertices[0]));
-	normals[1] = glm::normalize(glm::cross(vertices[2]-vertices[1], vertices[0]-vertices[1]));
-	normals[2] = glm::normalize(glm::cross(vertices[3]-vertices[2], vertices[1]-vertices[2]));
-	normals[3] = glm::normalize(glm::cross(vertices[0]-vertices[3], vertices[2]-vertices[3]));
+	for (int i = 0; i < nt; i++) {
+		glm::vec3 normal = glm::normalize(glm::cross(vertices[triangles_vec[i].z] - vertices[triangles_vec[i].y], vertices[triangles_vec[i].x] - vertices[triangles_vec[i].y]));
+		for (int j = 0; j < 3; j++) {
+			normals[triangles_vec[i][j]] += normal;
+		}
+	}
+	for (int i = 0; i < nv; i++) {
+		normals[i] = glm::normalize(normals[i]);
+	}
 	r.updateVertexAttribs(normalBuf, nv, normals);
 }
 
@@ -57,17 +69,19 @@ int main() {
 		return EXIT_FAILURE;
 	}
 	camCtl.initialize(width, height);
-	camCtl.camera.setCameraView(vec3(0.5, -0.5, 1.5), vec3(0.5, -0.5, 0.0), vec3(0.0, 1.0, 0.0));
+	camCtl.camera.setCameraView(vec3(0.0, 1.0, 2.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
 	program = r.createShaderProgram(
 		r.vsBlinnPhong(),
 		r.fsBlinnPhong()
 	);
 
+	Grid grid(2.0, 1.0, 10, 10);
+	grid.render(vertices_vec, triangles_vec);
 	initializeScene();
 
 	while (!r.shouldQuit()) {
         float t = SDL_GetTicks64()*1e-3;
-		updateScene(t);
+		updateScene(t, grid);
 
 		camCtl.update();
 		Camera &camera = camCtl.camera;
