@@ -13,6 +13,7 @@ namespace COL781 {
         if (!isFixed) {
             glm::vec3 acceleration = force/mass + glm::vec3(0.0f, -9.8f, 0.0f);
             velocity += dt*acceleration;
+            oldpos = position;
             position += dt*velocity;
         }
     }
@@ -23,23 +24,43 @@ namespace COL781 {
         this->restLength = restLength;
         this->stiffness = stiffness;
         this->damping = damping;
+        this->isConstraint = false;
     }
 
     void Spring::update(float dt) {
-        glm::vec3 direction = p2->position - p1->position;
-        float length = glm::length(direction);
-        direction = glm::normalize(direction);
-        glm::vec3 vel = p2->velocity - p1->velocity;
-        glm::vec3 force = (-stiffness*(length - restLength) - damping*(glm::dot(vel, direction))) * direction;
-        p1->force -= force;
-        p2->force += force;
+        if (!isConstraint) {
+            glm::vec3 direction = p2->position - p1->position;
+            float length = glm::length(direction);
+            direction = glm::normalize(direction);
+            glm::vec3 vel = p2->velocity - p1->velocity;
+            glm::vec3 force = (-stiffness*(length - restLength) - damping*(glm::dot(vel, direction))) * direction;
+            p1->force -= force;
+            p2->force += force;
+        }
     }
 
-    Grid::Grid(float width, float height, int nw, int nh) {
+    void Spring::solveConstraint() {
+        if (isConstraint) {
+            glm::vec3 direction = p1->position - p2->position;
+            float length = glm::length(direction);
+            direction = glm::normalize(direction);
+            float sc = 0.5f * (length - restLength);
+            glm::vec3 dstproj = sc * direction * 0.1f;
+            if (!p1->isFixed) {
+                p1->position -= dstproj;
+            }
+            if (!p2->isFixed) {
+                p2->position += dstproj;
+            }
+        }
+    }
+
+    Grid::Grid(float width, float height, int nw, int nh, bool pbd_val) {
         this->width = width;
         this->height = height;
         this->nw = nw;
         this->nh = nh;
+        this->pbd = pbd_val;
         particles = std::vector<std::vector<Particle>>(nw, std::vector<Particle>(nh, Particle(glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, false)));
         for (int i = 0; i < nw; i++) {
             for (int j = 0; j < nh; j++) {
@@ -55,10 +76,11 @@ namespace COL781 {
         particles[0][0].isFixed = true;
         particles[nw-1][0].isFixed = true;
 
-        float ke = 400.0f * sqrt(nw*nh);
-        float kd = 10.0f * sqrt(nw*nh);
-        float kf = 200.0f * sqrt(nw*nh);
-        float kg = 100.0f * sqrt(nw*nh);
+        float scale = 1;
+        float ke = 400.0f * sqrt(nw*nh) * scale;
+        float kf = 350.0f * sqrt(nw*nh) * scale;
+        float kg = 200.0f * sqrt(nw*nh) * scale;
+        float kd = 150.0f * scale;
 
 
         for (int i = 0; i < nw; i++) {
@@ -87,11 +109,17 @@ namespace COL781 {
                 ghostsprings.push_back(Spring(&particles[i][j], &particles[i+2][j], 2*width/(nw-1), kg, kd));
             }
         }
+        if (pbd) {
+            for (int i = 0; i < edgesprings.size(); i++) {
+                edgesprings[i].isConstraint = true;
+            }
+        }
     }
 
-    void Grid::render(std::vector<glm::vec3> &vertices, std::vector<glm::ivec3> &triangles) {
+    void Grid::render(std::vector<glm::vec3> &vertices, std::vector<glm::ivec3> &triangles, std::vector<glm::vec3> &normals) {
         vertices.clear();
         triangles.clear();
+        normals.clear();
         for (int i = 0; i < nw; i++) {
             for (int j = 0; j < nh; j++) {
                 vertices.push_back(particles[i][j].position);
@@ -103,27 +131,75 @@ namespace COL781 {
                 triangles.push_back(glm::ivec3(i*nh+j+1, (i+1)*nh+j+1, (i+1)*nh+j));
             }
         }
+
+        int nv = vertices.size();
+        int nt = triangles.size();
+        normals = std::vector<glm::vec3>(nv, glm::vec3(0.0f));
+        for (int i = 0; i < nt; i++) {
+            glm::vec3 normal = glm::normalize(glm::cross(vertices[triangles[i].z] - vertices[triangles[i].y], vertices[triangles[i].x] - vertices[triangles[i].y]));
+            for (int j = 0; j < 3; j++) {
+                normals[triangles[i][j]] += normal;
+            }
+        }
+        for (int i = 0; i < nv; i++) {
+            normals[i] = glm::normalize(normals[i]);
+        }
     }
 
     void Grid::update(float dt) {
-        for (int i = 0; i < nw; i++) {
-            for (int j = 0; j < nh; j++) {
-                particles[i][j].force = glm::vec3(0.0f);
+        if (pbd == false) {
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    particles[i][j].force = glm::vec3(0.0f);
+                }
             }
-        }
-        for (Spring &spring : edgesprings) {
-            spring.update(dt);
-        }
-        for (Spring &spring : facesprings) {
-            spring.update(dt);
-        }
-        for (Spring &spring : ghostsprings) {
-            spring.update(dt);
-        }
-        for (int i = 0; i < nw; i++) {
-            for (int j = 0; j < nh; j++) {
-                // std::cout << "force on particle " << i << " " << j << " " << particles[i][j].force.x << " " << particles[i][j].force.y << " " << particles[i][j].force.z << "\n";
-                particles[i][j].update(dt);
+            for (Spring &spring : edgesprings) {
+                spring.update(dt);
+            }
+            for (Spring &spring : facesprings) {
+                spring.update(dt);
+            }
+            for (Spring &spring : ghostsprings) {
+                spring.update(dt);
+            }
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    particles[i][j].update(dt);
+                }
+            }
+        } else {
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    particles[i][j].force = glm::vec3(0.0f);
+                }
+            }
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    particles[i][j].force += glm::vec3(0.0f, -9.8f, 0.0f);
+                }
+            }
+            for (Spring &spring : facesprings) {
+                spring.update(dt);
+            }
+            for (Spring &spring : ghostsprings) {
+                spring.update(dt);
+            }
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    particles[i][j].update(dt);
+                }
+            }
+            for (int i = 0; i < 100; i++) {
+                for (Spring &spring : edgesprings) {
+                    spring.solveConstraint();
+                }
+            }
+            for (int i = 0; i < nw; i++) {
+                for (int j = 0; j < nh; j++) {
+                    if (!particles[i][j].isFixed) {
+                        particles[i][j].velocity = (particles[i][j].position - particles[i][j].oldpos)/dt;
+                    }
+                }
             }
         }
     }

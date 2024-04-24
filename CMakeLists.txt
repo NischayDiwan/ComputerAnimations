@@ -9,7 +9,7 @@ find_package(glm REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
-add_library(col781 src/hw.cpp src/camera.cpp deps/src/gl.c src/massspring.cpp src/keyframing.cpp)
+add_library(col781 src/hw.cpp src/camera.cpp deps/src/gl.c src/massspring.cpp src/keyframing.cpp src/collisions.cpp)
 target_include_directories(col781 PUBLIC deps/include)
 target_link_libraries(col781 glm OpenGL::GL SDL2::SDL2)
 
@@ -21,3 +21,6 @@ target_link_libraries(clothsim col781)
 
 add_executable(skeletalanim src/skeletalanim.cpp)
 target_link_libraries(skeletalanim col781)
+
+add_executable(colsim src/colsim.cpp)
+target_link_libraries(colsim col781)

@@ -12,6 +12,7 @@ GL::ShaderProgram program;
 
 std::vector<glm::vec3> vertices_vec;
 std::vector<glm::ivec3> triangles_vec;
+std::vector<glm::vec3> normals_vec;
 
 GL::Object object;
 GL::AttribBuf vertexBuf, normalBuf;
@@ -31,7 +32,7 @@ void initializeScene() {
 	}	
 	vertexBuf = r.createVertexAttribs(object, 0, nv, vertices);
 	for (int i = 0; i < nv; i++) {
-		normals[i] = vec3(0.0, 0.0, 1.0);
+		normals[i] = normals_vec[i];
 	}
 	normalBuf = r.createVertexAttribs(object, 1, nv, normals);
 	for (int i = 0; i < nt; i++) {
@@ -42,7 +43,7 @@ void initializeScene() {
 
 void updateScene(float t, Grid &grid) {
 	grid.update(0.001);
-	grid.render(vertices_vec, triangles_vec);
+	grid.render(vertices_vec, triangles_vec, normals_vec);
 	const int nv = vertices_vec.size();
 	const int nt = triangles_vec.size();
 	vec3 vertices[nv];
@@ -51,14 +52,8 @@ void updateScene(float t, Grid &grid) {
 		vertices[i] = vertices_vec[i];
 	}
 	r.updateVertexAttribs(vertexBuf, nv, vertices);
-	for (int i = 0; i < nt; i++) {
-		glm::vec3 normal = glm::normalize(glm::cross(vertices[triangles_vec[i].z] - vertices[triangles_vec[i].y], vertices[triangles_vec[i].x] - vertices[triangles_vec[i].y]));
-		for (int j = 0; j < 3; j++) {
-			normals[triangles_vec[i][j]] += normal;
-		}
-	}
 	for (int i = 0; i < nv; i++) {
-		normals[i] = glm::normalize(normals[i]);
+		normals[i] = normals_vec[i];
 	}
 	r.updateVertexAttribs(normalBuf, nv, normals);
 }
@@ -75,8 +70,8 @@ int main() {
 		r.fsBlinnPhong()
 	);
 
-	Grid grid(1.0, 1.0, 15, 15);
-	grid.render(vertices_vec, triangles_vec);
+	Grid grid(1.0, 1.0, 20, 20, true);
+	grid.render(vertices_vec, triangles_vec, normals_vec);
 	initializeScene();
 
 	while (!r.shouldQuit()) {
