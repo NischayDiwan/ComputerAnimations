@@ -157,6 +157,7 @@ void Joint::get_transformed_mesh(const MeshData &mesh, Quaternion q, int &nv, in
     Quaternion v;
     for (int i = 0; i < nv; i++) {
         v.init(0.0f, orig_vertices[i]);
+        q = rotation;
         auto translation_mat = position;
         Joint* p = this;
         do {
