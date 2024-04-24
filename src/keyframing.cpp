@@ -173,6 +173,17 @@ void Joint::get_transformed_mesh(const MeshData &mesh, Quaternion q, int &nv, in
         } while (p != nullptr);
         (*vertices)[i] = v.get_vector();
     }
+
+    *normals = new glm::vec3[nv];
+    for (int i = 0; i < nt; i++) {
+        glm::vec3 normal = glm::normalize(glm::cross((*vertices)[(*triangles)[i].z] - (*vertices)[(*triangles)[i].y], (*vertices)[(*triangles)[i].x] - (*vertices)[(*triangles)[i].y]));
+        for (int j = 0; j < 3; j++) {
+            (*normals)[(*triangles)[i][j]] += normal;
+        }
+    }
+    for (int i = 0; i < nv; i++) {
+        (*normals)[i] = glm::normalize((*normals)[i]);
+    }
 }
 
 //KeyFrame definitions
