@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "hw.hpp"
 
 using namespace std;
@@ -48,6 +49,7 @@ private:
     Joint *parent;
     glm::vec3 axis;
     glm::mat4 position;
+    glm::mat4 translation;
     Quaternion rotation;
 
 public:
@@ -56,19 +58,22 @@ public:
     glm::vec3 get_axis() const;
     glm::mat4 get_translation_mat() const;
     Quaternion get_rotation_quat() const;
-    void get_transformed_mesh(const MeshData&, Quaternion, int&, int&, glm::vec3**, glm::vec3**, glm::ivec3**);
+    void get_transformed_mesh(const MeshData&, Quaternion, glm::mat4, int&, int&, glm::vec3**, glm::vec3**, glm::ivec3**);
 };
 
 class KeyFrame {
 private:
     vector<float> rotations;
+    vector<glm::vec3> translations;
     float time;                 // in milliseconds
 
 public:
     explicit KeyFrame(float);
     float get_time() const;
     void add_rotations(const vector<float>&);
+    void add_translations(const vector<glm::vec3>&);
     float get_rotation(int) const;
+    glm::vec3 get_translation(int) const;
 };
 
 class Animation {

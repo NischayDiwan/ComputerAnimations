@@ -115,8 +115,8 @@ glm::ivec3* MeshData::get_triangles() const {
 }
 
 // Joint definitions
-Joint::Joint(Joint *parent, glm::vec3 axis, glm::mat4 transform) : parent(parent), axis(axis),
-                                                                   position(transform) {
+Joint::Joint(Joint *parent, glm::vec3 axis, glm::mat4 position) : parent(parent), axis(axis),
+                                                                  position(position) {
     rotation.init(1.0f, glm::vec3(0.0f));
 }
 
@@ -129,16 +129,17 @@ glm::vec3 Joint::get_axis() const {
 }
 
 glm::mat4 Joint::get_translation_mat() const {
-    return position;
+    return translation * position;
 }
 
 Quaternion Joint::get_rotation_quat() const {
     return rotation;
 }
 
-void Joint::get_transformed_mesh(const MeshData &mesh, Quaternion q, int &nv, int &nt, glm::vec3 **vertices,
-                                 glm::vec3 **normals, glm::ivec3 **triangles) {
+void Joint::get_transformed_mesh(const MeshData &mesh, Quaternion q, glm::mat4 t, int &nv, int &nt,
+                                 glm::vec3 **vertices, glm::vec3 **normals, glm::ivec3 **triangles) {
     rotation = q.normalize();
+    translation = t;
 
     nv = mesh.get_num_vertices();
     nt = mesh.get_num_triangles();
@@ -151,7 +152,7 @@ void Joint::get_transformed_mesh(const MeshData &mesh, Quaternion q, int &nv, in
     for (int i = 0; i < nv; i++) {
         v.init(0.0f, orig_vertices[i]);
         q = rotation;
-        auto translation_mat = position;
+        auto translation_mat = translation * position;
         Joint* p = this;
         do {
             v = q * v * q.conj();
@@ -191,8 +192,17 @@ void KeyFrame::add_rotations(const vector<float>& angles) {
         rotations.push_back(angle);
 }
 
+void KeyFrame::add_translations(const vector<glm::vec3> &t) {
+    for (auto item : t)
+        translations.push_back(item);
+}
+
 float KeyFrame::get_rotation(int i) const {
     return rotations[i];
+}
+
+glm::vec3 KeyFrame::get_translation(int i) const {
+    return translations[i];
 }
 
 // Animation definitions
@@ -219,8 +229,9 @@ void Animation::get_frame(float timestamp, vector<glm::vec3*> &vertices, vector<
     while (prev_keyframe < keyframes.size() && keyframes[prev_keyframe + 1].get_time() <= timestamp)
         prev_keyframe++;
 
-    float t = (timestamp - keyframes[prev_keyframe].get_time()) /
-            (keyframes[prev_keyframe + 1].get_time() - keyframes[prev_keyframe].get_time());
+    float t1 = keyframes[prev_keyframe].get_time();
+    float t2 = keyframes[prev_keyframe + 1].get_time();
+    float t = (timestamp - t1) / (t2 - t1);
 
     for (int i = 0; i < joints.size(); i++) {
         auto theta1 = keyframes[prev_keyframe].get_rotation(i);
@@ -238,7 +249,12 @@ void Animation::get_frame(float timestamp, vector<glm::vec3*> &vertices, vector<
         Quaternion q0(theta0, axis), q1(theta1, axis), q2(theta2, axis), q3(theta3, axis);
         auto q = Quaternion::interpolate(q0, q1, q2, q3, t);
 
-        joints[i]->get_transformed_mesh(meshes[i], q, nv, nt, &transformed_vertices,
+        auto trans_1 = keyframes[prev_keyframe].get_translation(i);
+        auto trans_2 = keyframes[prev_keyframe + 1].get_translation(i);
+        auto trans = t * trans_2 + (1 - t) * trans_1;
+        auto trans_mat = glm::translate(glm::mat4(1.0f), trans);
+
+        joints[i]->get_transformed_mesh(meshes[i], q, trans_mat, nv, nt, &transformed_vertices,
                                         &transformed_normals, &joint_triangles);
 
         vertices.push_back(transformed_vertices);

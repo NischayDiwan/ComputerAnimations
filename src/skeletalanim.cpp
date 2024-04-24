@@ -1,6 +1,5 @@
 #include "camera.hpp"
 #include "keyframing.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
 #include <iostream>
 
@@ -180,12 +179,18 @@ Animation initializeScene() {
     anim.add_joint(13, {1.0f, 0.0f, 0.0f}, translation_mat);
     anim.add_mesh(nv, nt, vertices, triangles);
 
+    const glm::vec3 zero = glm::vec3(0.0f);
     KeyFrame f1(0.0f), f2(3000.0f), f3(6000.0f), f4(9000.0f), f5(12000);
     f1.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, 0.0f, 45.0f});
     f2.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 20.0f, 45.0f});
     f3.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, -20.0f, 45.0f});
     f4.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 0.0f, 45.0f});
     f5.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, 0.0f, 45.0f});
+    f1.add_translations({zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero});
+    f2.add_translations({glm::vec3(0.0f, 0.0f, 0.2f), zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero});
+    f3.add_translations({glm::vec3(0.0f, 0.0f, 0.4f), zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero});
+    f4.add_translations({glm::vec3(0.0f, 0.0f, 0.6f), zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero});
+    f5.add_translations({glm::vec3(0.0f, 0.0f, 0.8f), zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero});
 
     anim.add_keyframe(f1);
     anim.add_keyframe(f2);
@@ -202,7 +207,7 @@ int main() {
         return EXIT_FAILURE;
     }
     camCtl.initialize(width, height);
-    camCtl.camera.setCameraView(vec3(0.0, 0.0, 1.5), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0));
+    camCtl.camera.setCameraView(vec3(0.0, 0.0, 2.5), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0));
     program = r.createShaderProgram(
             r.vsBlinnPhong(),
             r.fsBlinnPhong()
