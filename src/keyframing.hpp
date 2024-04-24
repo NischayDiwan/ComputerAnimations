@@ -29,7 +29,7 @@ public:
     static Quaternion interpolate(Quaternion , Quaternion, Quaternion, Quaternion, float);
 };
 
-class Mesh {
+class MeshData {
 private:
     int nv, nt;
     glm::vec3 *vertices;
@@ -37,7 +37,7 @@ private:
     glm::ivec3 *triangles;
 
 public:
-    Mesh(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
+    MeshData(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
     int get_num_vertices() const;
     int get_num_triangles() const;
     glm::vec3* get_vertices() const;
@@ -51,18 +51,14 @@ private:
     glm::vec3 axis;
     glm::mat4 position;
     Quaternion rotation;
-    Mesh *mesh;
 
 public:
     Joint(Joint*, glm::vec3, glm::mat4);
     Joint* get_parent() const;
     glm::vec3 get_axis() const;
-    void create_mesh(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
     glm::mat4 get_translation_mat() const;
     Quaternion get_rotation_quat() const;
-    int get_num_vertices() const;
-    int get_num_triangles() const;
-    void get_transformed_mesh(Quaternion, int&, int&, glm::vec3**, glm::vec3**, glm::ivec3**);
+    void get_transformed_mesh(const MeshData&, Quaternion, int&, int&, glm::vec3**, glm::vec3**, glm::ivec3**);
 };
 
 class KeyFrame {
@@ -74,17 +70,21 @@ public:
     explicit KeyFrame(float);
     float get_time() const;
     void add_rotation(float);
+    void add_rotations(const vector<float>&);
     float get_rotation(int) const;
 };
 
 class Animation {
 private:
     int prev_keyframe;
-    vector<Joint> joints;
+    vector<Joint*> joints;
+    vector<MeshData> meshes;
     vector<KeyFrame> keyframes;
 
 public:
-    explicit Animation(vector<Joint>);
+    Animation();
+    void add_joint(int, glm::vec3, glm::mat4);
+    void add_mesh(int, int, glm::vec3*, glm::vec3*, glm::ivec3*);
     void add_keyframe(const KeyFrame&);
     void get_frame(float, vector<glm::vec3*>&, vector<glm::vec3*>&, vector<glm::ivec3*>&);
 };
