@@ -207,7 +207,7 @@ int main() {
         return EXIT_FAILURE;
     }
     camCtl.initialize(width, height);
-    camCtl.camera.setCameraView(vec3(0.0, 0.0, 2.5), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0));
+    camCtl.camera.setCameraView(vec3(1.2, 0.8, 1.5), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
     program = r.createShaderProgram(
             r.vsBlinnPhong(),
             r.fsBlinnPhong()

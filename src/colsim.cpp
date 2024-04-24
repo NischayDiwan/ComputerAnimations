@@ -15,7 +15,7 @@ std::vector<glm::vec3> vertices_vec;
 std::vector<glm::ivec3> triangles_vec;
 std::vector<glm::vec3> normals_vec;
 Cloth cloth = Cloth(1.0, 1.0, 20, 20);
-Sphere sphere = Sphere(glm::vec3(0.0, -0.7, -0.5), 0.3, 0.1, 1.0);
+Sphere sphere = Sphere(glm::vec3(0.0, -0.8, -0.2), 0.2, 0.1, 1.0);
 Plane ground = Plane(glm::vec3(0.0, 1.0, 0.0), -1.0, 0.2, 0.3);
 CollisionSystem cs = CollisionSystem();
 
@@ -174,21 +174,21 @@ int main() {
 	);
 	
 	initializeScene();
-	// sphere.setVelocity(vec3(0.0, 0.0, -0.5));
+	sphere.setVelocity(vec3(0.0, 0.0, -0.5));
 	sphere.setOmega(vec3(0.0, 5.0, 0.0));
 	float st = SDL_GetTicks64()*1e-3;
 	while (!r.shouldQuit()) {
         float t = SDL_GetTicks64()*1e-3;
-		// if (abs(t-st - 15.0) < 0.01) {
-		// 	std::cout << "Changing velocity" << std::endl;
-		// 	sphere.setVelocity(vec3(0.0, 0.0, 1.0));
-		// } else if (abs(t-st - 25.0) < 0.01) {
-		// 	std::cout << "Changing velocity" << std::endl;
-		// 	sphere.setVelocity(vec3(0.0, 0.0, -1.0));
-		// } else if ( abs(t-st - 35.0) < 0.01) {
-		// 	std::cout << "Changing velocity" << std::endl;
-		// 	sphere.setVelocity(vec3(0.0, 0.0, 1.0));
-		// }
+		if (abs(t-st - 15.0) < 0.01) {
+			std::cout << "Changing velocity" << std::endl;
+			sphere.setVelocity(vec3(0.0, 0.0, 1.0));
+		} else if (abs(t-st - 25.0) < 0.01) {
+			std::cout << "Changing velocity" << std::endl;
+			sphere.setVelocity(vec3(0.0, 0.0, -1.0));
+		} else if ( abs(t-st - 35.0) < 0.01) {
+			std::cout << "Changing velocity" << std::endl;
+			sphere.setVelocity(vec3(0.0, 0.0, 1.0));
+		}
 		updateScene(0.001);
 
 		camCtl.update();

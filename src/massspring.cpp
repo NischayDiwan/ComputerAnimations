@@ -189,7 +189,7 @@ namespace COL781 {
                     particles[i][j].update(dt);
                 }
             }
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 50; i++) {
                 for (Spring &spring : edgesprings) {
                     spring.solveConstraint();
                 }
