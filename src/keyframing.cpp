@@ -87,15 +87,12 @@ Quaternion Quaternion::interpolate(Quaternion q0, Quaternion q1, Quaternion q2, 
 }
 
 // MeshData definitions
-MeshData::MeshData(int nv, int nt, glm::vec3 *v, glm::vec3 *n, glm::ivec3 *t) : nv(nv), nt(nt) {
+MeshData::MeshData(int nv, int nt, glm::vec3 *v, glm::ivec3 *t) : nv(nv), nt(nt) {
     vertices = new glm::vec3[nv];
-    normals = new glm::vec3[nv];
     triangles = new glm::ivec3[nt];
 
-    for (int i = 0; i < nv; i++) {
+    for (int i = 0; i < nv; i++)
         vertices[i] = v[i];
-        normals[i] = n[i];
-    }
 
     for (int i = 0; i < nt; i++)
         triangles[i] = t[i];
@@ -111,10 +108,6 @@ int MeshData::get_num_triangles() const {
 
 glm::vec3* MeshData::get_vertices() const {
     return vertices;
-}
-
-glm::vec3* MeshData::get_normals() const {
-    return normals;
 }
 
 glm::ivec3* MeshData::get_triangles() const {
@@ -193,10 +186,6 @@ float KeyFrame::get_time() const {
     return time;
 }
 
-void KeyFrame::add_rotation(float angle) {
-    rotations.push_back(angle);
-}
-
 void KeyFrame::add_rotations(const vector<float>& angles) {
     for (auto angle : angles)
         rotations.push_back(angle);
@@ -207,15 +196,15 @@ float KeyFrame::get_rotation(int i) const {
 }
 
 // Animation definitions
-Animation::Animation () : prev_keyframe(0) {}
+Animation::Animation(int len) : len(len) {}
 
 void Animation::add_joint(int parent_id, glm::vec3 axis, glm::mat4 transform) {
     Joint *parent = (parent_id < 0) ? nullptr : joints[parent_id];
     joints.push_back(new Joint(parent, axis, transform));
 }
 
-void Animation::add_mesh(int nv, int nt, glm::vec3 *vertices, glm::vec3 *normals, glm::ivec3 *triangles) {
-    meshes.emplace_back(nv, nt, vertices, normals, triangles);
+void Animation::add_mesh(int nv, int nt, glm::vec3 *vertices, glm::ivec3 *triangles) {
+    meshes.emplace_back(nv, nt, vertices, triangles);
 }
 
 void Animation::add_keyframe(const KeyFrame& kf) {
@@ -224,11 +213,11 @@ void Animation::add_keyframe(const KeyFrame& kf) {
 
 void Animation::get_frame(float timestamp, vector<glm::vec3*> &vertices, vector<glm::vec3*> &normals,
                           vector<glm::ivec3*> &triangles) {
+    int prev_keyframe = 0;
+    timestamp = timestamp - static_cast<float>(len) * floor((timestamp / static_cast<float>(len)));
+
     while (prev_keyframe < keyframes.size() && keyframes[prev_keyframe + 1].get_time() <= timestamp)
         prev_keyframe++;
-
-    // check that the timestamp does not surpass the animation length
-    assert(prev_keyframe < keyframes.size() - 1);
 
     float t = (timestamp - keyframes[prev_keyframe].get_time()) /
             (keyframes[prev_keyframe + 1].get_time() - keyframes[prev_keyframe].get_time());

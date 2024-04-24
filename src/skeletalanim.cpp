@@ -25,7 +25,7 @@ GL::Object object;
 CameraControl camCtl;
 
 Animation initializeScene() {
-    Animation anim;
+    Animation anim(12000);
     glm::mat4 translation_mat;
 
     triangles[0] = ivec3(0, 1, 2);
@@ -52,46 +52,46 @@ Animation initializeScene() {
     vertices[7] = vec3(0.0, 0.6, -0.05);
 
     anim.add_joint(-1, {1.0f, 0.0f, 0.0f}, mat4(1.0f));
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // shoulder and hip bones
-    vertices[0] = vec3(-0.2, 0.0, 0.025);
+    vertices[0] = vec3(-0.15, 0.0, 0.025);
     vertices[1] = vec3(0.0, 0.0, 0.025);
     vertices[2] = vec3(0.0, 0.05, 0.025);
-    vertices[3] = vec3(-0.2, 0.05, 0.025);
-    vertices[4] = vec3(-0.2, 0.0, -0.025);
+    vertices[3] = vec3(-0.15, 0.05, 0.025);
+    vertices[4] = vec3(-0.15, 0.0, -0.025);
     vertices[5] = vec3(0.0, 0.0, -0.025);
     vertices[6] = vec3(0.0, 0.05, -0.025);
-    vertices[7] = vec3(-0.2, 0.05, -0.025);
+    vertices[7] = vec3(-0.15, 0.05, -0.025);
 
     // left shoulder
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, 0.55f, -0.025f));
     anim.add_joint(0, {0.0f, 1.0f, 0.0f}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // left hip
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, 0.0f, -0.025f));
     anim.add_joint(0, {0.0f, 1.0f, 0.0f}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     vertices[0] = vec3(0.0, 0.0, 0.025);
-    vertices[1] = vec3(0.2, 0.0, 0.025);
-    vertices[2] = vec3(0.2, 0.05, 0.025);
+    vertices[1] = vec3(0.15, 0.0, 0.025);
+    vertices[2] = vec3(0.15, 0.05, 0.025);
     vertices[3] = vec3(0.0, 0.05, 0.025);
     vertices[4] = vec3(0.0, 0.0, -0.025);
-    vertices[5] = vec3(0.2, 0.0, -0.025);
-    vertices[6] = vec3(0.2, 0.05, -0.025);
+    vertices[5] = vec3(0.15, 0.0, -0.025);
+    vertices[6] = vec3(0.15, 0.05, -0.025);
     vertices[7] = vec3(0.0, 0.05, -0.025);
 
     // right shoulder
     translation_mat = glm::translate(mat4(1.0f), vec3(0.05f, 0.55f, -0.025f));
     anim.add_joint(0, {0.0f, -1.0f, 0.0f}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // right hip
     translation_mat = glm::translate(mat4(1.0f), vec3(0.05f, 0.0f, -0.025f));
     anim.add_joint(0, {0.0f, -1.0f, 0.0f}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // arms
     vertices[0] = vec3(0.0, -0.2, 0.025);
@@ -104,24 +104,24 @@ Animation initializeScene() {
     vertices[7] = vec3(0.0, 0.0, -0.025);
 
     // left upper arm
-    translation_mat = glm::translate(mat4(1.0f), vec3(-0.25f, 0.05f, 0.0f));
+    translation_mat = glm::translate(mat4(1.0f), vec3(-0.2f, 0.05f, 0.0f));
     anim.add_joint(1, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // left lower arm
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, -0.2f, 0.0f));
     anim.add_joint(5, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // right upper arm
-    translation_mat = glm::translate(mat4(1.0f), vec3(0.2f, 0.05f, 0.0f));
+    translation_mat = glm::translate(mat4(1.0f), vec3(0.15f, 0.05f, 0.0f));
     anim.add_joint(3, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // right lower arm
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, -0.2f, 0.0f));
     anim.add_joint(7, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // legs
     vertices[0] = vec3(0.0, -0.3, 0.025);
@@ -134,49 +134,64 @@ Animation initializeScene() {
     vertices[7] = vec3(0.0, 0.0, -0.025);
 
     // left upper leg
-    translation_mat = glm::translate(mat4(1.0f), vec3(-0.25f, 0.05f, 0.0f));
+    translation_mat = glm::translate(mat4(1.0f), vec3(-0.2f, 0.05f, 0.0f));
     anim.add_joint(2, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // left lower leg
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, -0.3f, 0.0f));
     anim.add_joint(9, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // right upper leg
-    translation_mat = glm::translate(mat4(1.0f), vec3(0.2f, 0.05f, 0.0f));
+    translation_mat = glm::translate(mat4(1.0f), vec3(0.15f, 0.05f, 0.0f));
     anim.add_joint(4, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // right lower leg
     translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, -0.3f, 0.0f));
     anim.add_joint(11, {-1.0, 0.0, 0.0}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
     // head
     vertices[0] = vec3(-0.025, 0.0, 0.025);
     vertices[1] = vec3(0.025, 0.0, 0.025);
-    vertices[2] = vec3(0.025, 0.1, 0.025);
-    vertices[3] = vec3(-0.025, 0.1, 0.025);
+    vertices[2] = vec3(0.025, 0.15, 0.025);
+    vertices[3] = vec3(-0.025, 0.15, 0.025);
     vertices[4] = vec3(-0.025, 0.0, -0.025);
     vertices[5] = vec3(0.025, 0.0, -0.025);
-    vertices[6] = vec3(0.025, 0.1, -0.025);
-    vertices[7] = vec3(-0.025, 0.1, -0.025);
+    vertices[6] = vec3(0.025, 0.15, -0.025);
+    vertices[7] = vec3(-0.025, 0.15, -0.025);
 
     translation_mat = glm::translate(mat4(1.0f), vec3(0.025f, 0.6f, -0.025f));
     anim.add_joint(0, {0.0f, 1.0f, 0.0f}, translation_mat);
-    anim.add_mesh(nv, nt, vertices, normals, triangles);
+    anim.add_mesh(nv, nt, vertices, triangles);
 
-    KeyFrame f1(0.0f), f2(3000.0f), f3(6000.0f), f4(9000.0f);
-    f1.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, 0.0f});
-    f2.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 20.0f});
-    f3.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, -20.0f});
-    f4.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 0.0f});
+    vertices[0] = vec3(-0.025, -0.05, 0.15);
+    vertices[1] = vec3(0.025, -0.05, 0.15);
+    vertices[2] = vec3(0.025, 0.0, 0.15);
+    vertices[3] = vec3(-0.025, 0.0, 0.15);
+    vertices[4] = vec3(-0.025, -0.05, 0.0);
+    vertices[5] = vec3(0.025, -0.05, 0.0);
+    vertices[6] = vec3(0.025, 0.0, 0.0);
+    vertices[7] = vec3(-0.025, 0.0, 0.0);
+
+    translation_mat = glm::translate(mat4(1.0f), vec3(0.0f, 0.15f, 0.025f));
+    anim.add_joint(13, {1.0f, 0.0f, 0.0f}, translation_mat);
+    anim.add_mesh(nv, nt, vertices, triangles);
+
+    KeyFrame f1(0.0f), f2(3000.0f), f3(6000.0f), f4(9000.0f), f5(12000);
+    f1.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, 0.0f, 45.0f});
+    f2.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 20.0f, 45.0f});
+    f3.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, -20.0f, 45.0f});
+    f4.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30.0f, 30.0f, -30.0f, 0.0f, -30.0f, -30.0f, 30.0f, 0.0f, 0.0f, 45.0f});
+    f5.add_rotations({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -30.0f, 0.0f, 30.0f, 30.0f, 30.0f, 0.0f, -30.0f, -30.0f, 0.0f, 45.0f});
 
     anim.add_keyframe(f1);
     anim.add_keyframe(f2);
     anim.add_keyframe(f3);
     anim.add_keyframe(f4);
+    anim.add_keyframe(f5);
 
     return anim;
 }
@@ -197,7 +212,7 @@ int main() {
     vector<glm::vec3*> vertices_vec, normals_vec;
     vector<glm::ivec3*> triangles_vec;
 
-    while (!r.shouldQuit() && SDL_GetTicks64() < 9000) {
+    while (!r.shouldQuit()) {
         r.clear(vec4(1.0f));
         r.enableDepthTest();
         r.useShaderProgram(program);
@@ -218,6 +233,7 @@ int main() {
             object = r.createObject();
 
             r.createVertexAttribs(object, 0, 8, vertices_vec[i]);
+            r.createVertexAttribs(object, 1, 8, normals_vec[i]);
             r.createTriangleIndices(object, 12, triangles_vec[i]);
 
             r.setupFilledFaces();
